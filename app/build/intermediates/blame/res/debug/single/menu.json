@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/menu/no_connection.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/menu/no_connection.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/menu/main.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/menu/main.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/menu/device.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/menu/device.xml"
+    }
+]

@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/activity_device.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/activity_device.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/activity_no_connection.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/activity_no_connection.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/compatible_adapter.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/compatible_adapter.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/activity_main.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/activity_compatible_devices.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/activity_compatible_devices.xml"
+    },
+    {
+        "merged": "/home/alepapadop/AndroidStudioProjects/ge20151/app/build/intermediates/res/merged/debug/layout/activity_synapse_devices.xml",
+        "source": "/home/alepapadop/AndroidStudioProjects/ge20151/app/src/main/res/layout/activity_synapse_devices.xml"
+    }
+]
