@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class CompatibleDevices extends Activity implements  TaskCompletedInterface {
 
@@ -144,5 +145,10 @@ public class CompatibleDevices extends Activity implements  TaskCompletedInterfa
             Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onGetSynapsesAll(HashMap<Integer, ArrayList<Integer>> result) {
+
     }
 }

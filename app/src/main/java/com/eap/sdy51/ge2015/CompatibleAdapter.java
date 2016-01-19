@@ -25,6 +25,9 @@ public class CompatibleAdapter extends ArrayAdapter<Device> {
 
 
     public CompatibleAdapter(Context context, ArrayList<Device> comp_devices, ArrayList<Synapses> synaps, Integer device_id) {
+
+
+
         super(context, 0, comp_devices);
 
         _context = context;

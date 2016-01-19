@@ -9,14 +9,14 @@ import java.util.HashMap;
 public class Synapses {
     int synapse_id;
     ArrayList<Integer> devices_ids;
-    HashMap<Integer, Integer> devices_id_plugs; //device_id - plug_id
+
+    HashMap<Integer, ArrayList<Integer>> devices_id_plugs; //device_id - plug_id
 
 
     Synapses() {
         devices_ids = new ArrayList<Integer>();
-        devices_id_plugs = new HashMap<Integer, Integer>();
 
-
+        devices_id_plugs = new HashMap<Integer, ArrayList<Integer>>();
 
     }
 }

@@ -63,9 +63,21 @@ public class HttpGetCompatibleDevicesAsyncTask extends AsyncTask<Integer, Void, 
                     try {
                         dev.deviceid = json_obj.getInt("device_id");
                         dev.devicename = current_key;
+
+                        JSONObject plugs = data.getJSONObject("plugs");
+
+                        dev.plug_id = new ArrayList<Integer>();
+
+                        for (int i = 0; i < plugs.length(); ++i) {
+
+                            dev.plug_id.add(plugs.getInt("plug_id"));
+
+                        }
+
+
                         //dev.devicetype = json_obj.getString("device_type");
                     } catch (Exception e) {
-                        continue;
+                        ;
                     }
 
                     result.add(dev);
@@ -76,6 +88,13 @@ public class HttpGetCompatibleDevicesAsyncTask extends AsyncTask<Integer, Void, 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        //for (Device d : result) {
+            //if (d.devicename == "alepapadop") {
+         //       Log.i("SS", d.devicename + " " + d.deviceid + " " + d.devicetype);
+            //}
+        //}
+
         return result;
     }
 

@@ -42,8 +42,8 @@ public class HttpChangeDeviceStateAsyncTask extends AsyncTask<Integer, Void, Int
 	protected Integer[] doInBackground(Integer... params) {
 		
 		HttpClient httpclient = new DefaultHttpClient();
-        HttpGet httpget = new HttpGet(
-                "http://150.140.15.50/sdy51/2015/change_plug_state.php?device="+params[0]+"&plug="+params[1]+"&value="+params[2]);
+        String http_str = "http://150.140.15.50/sdy51/2015/change_plug_state.php?device="+params[0]+"&plug="+params[1]+"&value="+params[2];
+        HttpGet httpget = new HttpGet(http_str);
         /*
          * there is no device with id=-1 in the database, so if this stays the same, we have failed to update 
          */
@@ -56,6 +56,7 @@ public class HttpChangeDeviceStateAsyncTask extends AsyncTask<Integer, Void, Int
             
             //read the response
             String responseText = EntityUtils.toString(response.getEntity());
+            Log.i("Response", http_str);
             Log.i("Response", responseText);
             JSONObject data = new JSONObject(responseText);
             JSONObject status = data.getJSONObject("status");

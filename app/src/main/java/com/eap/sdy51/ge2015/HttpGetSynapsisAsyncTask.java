@@ -68,7 +68,17 @@ public class HttpGetSynapsisAsyncTask extends AsyncTask<Integer, Void, ArrayList
                         JSONObject participants_obj = (JSONObject) participants.get(j);
                         synapses_obj.devices_ids.add(participants_obj.getInt("device_id"));
 
-                        synapses_obj.devices_id_plugs.put(participants_obj.getInt("device_id"), participants_obj.getInt("plug_id"));
+                        if (!synapses_obj.devices_id_plugs.containsKey(participants_obj.getInt("device_id"))) {
+                            ArrayList<Integer> list = new ArrayList<Integer>();
+                            list.add(participants_obj.getInt("plug_id"));
+                            synapses_obj.devices_id_plugs.put(participants_obj.getInt("device_id"), list);
+                        } else {
+                            ArrayList<Integer> list = synapses_obj.devices_id_plugs.get(participants_obj.getInt("device_id"));
+                            list.add(participants_obj.getInt("plug_id"));
+                        }
+
+
+                        //synapses_obj.devices_id_plugs.put(participants_obj.getInt("device_id"), participants_obj.getInt("plug_id"));
 
 
                     }

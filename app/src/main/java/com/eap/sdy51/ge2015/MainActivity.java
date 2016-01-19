@@ -1,6 +1,7 @@
 package com.eap.sdy51.ge2015;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.eap.sdy51.ge2015.R;
 
@@ -127,6 +128,11 @@ public class MainActivity extends Activity implements TaskCompletedInterface{
 
     @Override
     public void onDeleteSynapses(Integer result) {
+
+    }
+
+    @Override
+    public void onGetSynapsesAll(HashMap<Integer, ArrayList<Integer>> result) {
 
     }
 

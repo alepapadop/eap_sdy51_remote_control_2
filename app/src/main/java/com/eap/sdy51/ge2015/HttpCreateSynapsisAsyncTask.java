@@ -41,7 +41,7 @@ public class HttpCreateSynapsisAsyncTask extends AsyncTask<Integer, Void, Intege
 
             //read the response
             String responseText = EntityUtils.toString(response.getEntity());
-            //Log.i("Response", responseText);
+            Log.i("Response", responseText);
             JSONObject data = new JSONObject(responseText);
             JSONObject status = data.getJSONObject("status");
             String status_result=status.getString("result");

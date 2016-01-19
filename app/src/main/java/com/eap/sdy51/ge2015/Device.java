@@ -8,10 +8,12 @@ public class Device {
 	public String devicename;
 	public String devicetype;
 	public int user_conf;
-    ArrayList<Integer> synapses_id;
+    ArrayList<Integer> plug_id;
+
 	
 	public Device()
 	{
+
 		
 	}
 	

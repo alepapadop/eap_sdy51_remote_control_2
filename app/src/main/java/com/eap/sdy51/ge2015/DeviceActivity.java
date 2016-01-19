@@ -11,11 +11,9 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -43,6 +41,16 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
     private ArrayList<Synapses> _synapses;
     private  final DeviceActivity _my_class = this;
     private ArrayList<Device> _only_synapse_devices;
+    private boolean _auto_update = false;
+    private SeekBar _sb = null;
+    private int _progress_step = 0;
+    private int _seekbar_oldval = 0;
+    private int _cur_plug_id = 0;
+    private View _selected_widget = null;
+    private int _new_val_sw;
+    private int _old_val_sw;
+    private int _checked_id;
+
 
 
     //private ArrayList<CustomViewObject> custom_views = new ArrayList<CustomViewObject>();
@@ -50,9 +58,9 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 
 
 	private ArrayList<DeviceState> states;
-	
+
 	/* this flag enables the widget listeners to connect to the DB and perform update actions,
-	 * as initiated by the user, only after the initial states have been retrieved and the 
+	 * as initiated by the user, only after the initial states have been retrieved and the
 	 * widgets' values have been set accordingly.
 	*/
 	private boolean readytoupdate = false;
@@ -65,7 +73,7 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i("ssss", "XOXXOXOXO");
+
 
                     if(isNetworkAvailable())
                     {
@@ -80,8 +88,9 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
                     }
                 }
             });
-            Log.i("ssss", "ZOZOZOZOZO");
-            handler.postDelayed(mStatusChecker, 2000);
+            //Log.i("jjj", "jjjjjjjj");
+
+            handler.postDelayed(mStatusChecker, 10000);
         }
     };
 
@@ -90,14 +99,14 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_device);
-		
+
 		//get the device details from the list activity
 		Bundle b = getIntent().getExtras();
 		deviceid = b.getInt("id");
 		devicename = b.getString("name");
         device_type = b.getString("type");
         user_conf = b.getInt("user_conf");
-		
+
 		//set up the views
 		TextView deviceLabel = (TextView)findViewById(R.id.deviceName);
 		deviceLabel.setText(devicename + " " + device_type);
@@ -112,7 +121,7 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 		else
 		{
 			Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
-			startActivity(intent);	
+			startActivity(intent);
 		}
 
 
@@ -139,7 +148,22 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
     }
 
 
+    private int handler_get_msg()
+    {
+        Message msg = handler.obtainMessage();
+        Bundle bundle = msg.getData();
+        return bundle.getInt("X");
+    }
 
+    private void handler_add_msg(Integer val)
+    {
+        Message msg = new Message();
+        Bundle bundle = new Bundle();
+        bundle.putInt("X", val);
+        msg.setData(bundle);
+        handler.sendMessage(msg);
+
+    }
 
 
 
@@ -158,11 +182,15 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
             int oldvalue, newvalue;
 
 
+
+
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //if (readytoupdate) {
 
                     //handler.removeCallbacks(mStatusChecker);
+                    _selected_widget = buttonView;
+
 
                     if (isChecked) {
                         oldvalue = 0;
@@ -171,6 +199,19 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
                         oldvalue = 1;
                         newvalue = 0;
                     }
+
+                    _new_val_sw = newvalue;
+                    _old_val_sw = oldvalue;
+                    _cur_plug_id = ds.stateid;
+
+                HttpGetSynapsesAll all = new HttpGetSynapsesAll(DeviceActivity.this);
+                Synapses dummy = new Synapses();
+                dummy.synapse_id = ds.stateid;
+                Synapses dummy2 = new Synapses();
+                dummy2.synapse_id = deviceid;
+                _synapses.add(dummy);
+                _synapses.add(dummy2);
+                all.execute(_synapses);
 
                     //Log.i("Device Update","User changed the power state");
                     Integer[] parameters = {deviceid, ds.stateid, newvalue, oldvalue, 1}; //our power state, and its new value
@@ -209,42 +250,43 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 //if (readytoupdate) {
-                    //Log.i("Device Update","User changed the brightness");
+                //Log.i("Device Update","User changed the brightness");
+
+                _selected_widget = seekBar;
 
 
-                    if (isNetworkAvailable()) {
-                        Integer[] parameters = {deviceid, ds.stateid, get_progress_step(seekBar, ds), oldvalue, 1}; //our brightness state, and its new value
-                        HttpChangeDeviceStateAsyncTask cs = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
-                        cs.execute(parameters);
+                if (isNetworkAvailable()) {
+                    Integer[] parameters = {deviceid, ds.stateid, get_progress_step(seekBar, ds), oldvalue, 1}; //our brightness state, and its new value
+                    HttpChangeDeviceStateAsyncTask cs = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
+                    cs.execute(parameters);
 
-                        /*for (Synapses synaps :_synapses) {
-                            HashMap<Integer, Integer> device_synaps = synaps.devices_id_plugs;
+                    _sb = seekBar;
+                    _progress_step = get_progress_step(seekBar, ds);
+                    _seekbar_oldval = oldvalue;
+                    _cur_plug_id = ds.stateid;
 
-                        for (HashMap.Entry<Integer, Integer> entry : device_synaps.entrySet()) {
-                                Integer key = entry.getKey();
-                                Integer value = entry.getValue();
+                    HttpGetSynapsesAll all = new HttpGetSynapsesAll(DeviceActivity.this);
+                    Synapses dummy = new Synapses();
+                    dummy.synapse_id = ds.stateid;
+                    Synapses dummy2 = new Synapses();
+                    dummy2.synapse_id = deviceid;
+                    _synapses.add(dummy);
+                    _synapses.add(dummy2);
+                    all.execute(_synapses);
 
 
-
-                                Integer[] parameters2 = {key, value, get_progress_step(seekBar, ds), oldvalue, 0}; //our brightness state, and its new value
-                                HttpChangeDeviceStateAsyncTask cs2 = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
-                                cs2.execute(parameters2);
-                            }
-                        }*/
-
-
-                    } else {
-                        Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
-                        startActivity(intent);
-                    }
-               // }
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
+                    startActivity(intent);
+                }
+                // }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 // save the starting state, so that if the update fails, we can revert.
                 //if (readytoupdate)
-                    oldvalue = seekBar.getProgress();
+                oldvalue = seekBar.getProgress();
             }
 
             @Override
@@ -269,21 +311,85 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 //if (readytoupdate) {
 
-                    //Log.i("Device Update","User changed the power state");
-                    Integer[] parameters = {deviceid, ds.stateid, checkedId, prev_radio, 1}; //our power state, and its new value
+                //Log.i("Device Update","User changed the power state");
 
-                    if (isNetworkAvailable()) {
-                        HttpChangeDeviceStateAsyncTask cs = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
-                        cs.execute(parameters);
-                    } else {
-                        Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
-                        startActivity(intent);
-                    }
-               // }
+
+
+                Integer[] parameters = {deviceid, ds.stateid, checkedId, prev_radio, 1}; //our power state, and its new value
+
+                if (isNetworkAvailable()) {
+                    HttpChangeDeviceStateAsyncTask cs = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
+                    cs.execute(parameters);
+                } else {
+                    Intent intent = new Intent(getApplicationContext(), NoConnectionActivity.class);
+                    startActivity(intent);
+                }
+
+                _selected_widget = group;
+                _checked_id = checkedId;
+                _cur_plug_id = ds.stateid;
+
+                HttpGetSynapsesAll all = new HttpGetSynapsesAll(DeviceActivity.this);
+                Synapses dummy = new Synapses();
+                dummy.synapse_id = ds.stateid;
+                Synapses dummy2 = new Synapses();
+                dummy2.synapse_id = deviceid;
+                _synapses.add(dummy);
+                _synapses.add(dummy2);
+                all.execute(_synapses);
+
+                // }
             }
         });
     }
 
+    @Override
+    public void onGetSynapsesAll(HashMap<Integer, ArrayList<Integer>> result) {
+
+
+        int flag = 0;
+        Integer master_plug_id = 0;
+        for (HashMap.Entry<Integer, ArrayList<Integer>> entry : result.entrySet()) {
+            Integer device_id = entry.getKey();
+            ArrayList<Integer> plug_ids = entry.getValue();
+
+
+            flag = 0;
+
+            if (deviceid == device_id) {
+         //       master_plug_id = plug_id;
+            }
+
+            if (deviceid == device_id) {
+                continue;
+            }
+
+            for (Integer plug_id : plug_ids) {
+
+                //Log.i("ssss", "device_id " + device_id + " plug_id" + plug_id);
+
+
+
+                            Integer[] parameters;
+
+                            if (_selected_widget instanceof SeekBar) {
+                                parameters = new Integer[]{device_id, plug_id, _progress_step, _seekbar_oldval, 0}; //our brightness state, and its new value
+                            } else if (_selected_widget instanceof Switch) {
+                                parameters = new Integer[]{device_id, plug_id, _new_val_sw, _old_val_sw, 1}; //our power state, and its new value
+                            } else if (_selected_widget instanceof RadioGroup) {
+                                //Log.i("xxxxx", "ssss");
+                                parameters = new Integer[]{device_id, plug_id, _checked_id, prev_radio, 1}; //our power state, and its new value
+                            } else {
+                                parameters = new Integer[]{0};
+                                assert false;
+                            }
+                            HttpChangeDeviceStateAsyncTask cs2 = new HttpChangeDeviceStateAsyncTask(DeviceActivity.this);
+                            cs2.execute(parameters);
+
+                        }
+
+        }
+    }
 
     private void set_listeners() {
         for (CustomViewObject custom_view : custom_views) {
@@ -400,80 +506,12 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 	@Override
 	public void onGetStatesCompleted(ArrayList<DeviceState> fetchedstates) {
 		states = fetchedstates;
-
-        LinearLayout layout = get_layout();
-
-        /*
-        if (custom_views.size() > 0) {
-            for (CustomViewObject custom_ciew : custom_views) {
-                View view = custom_ciew.custom_view_get_complete_widget();
-
-                layout.removeView(view);
-            }
-        }
-        */
-
-        /*
-		for (int i=0; i < states.size(); i++)
-		{
-			DeviceState ds = states.get(i);
-
-            CustomViewObject custom_view = new CustomViewObject(getApplicationContext(), ds);
-            layout.addView(custom_view.custom_view_get_complete_widget());
-            custom_views.add(custom_view);
-
-            if (custom_view.custom_view_get_view_type() == CustomViewObject.VIEW_TYPE.RADIO) {
-                prev_radio = ((RadioGroup)custom_view.custom_view_get_widget()).getCheckedRadioButtonId();
-            }
-
-            if (user_conf == 0) {
-                custom_view.custom_view_get_widget().setEnabled(false);
-            } else {
-                custom_view.custom_view_get_widget().setEnabled(true);
-            }
-		}
-		*/
-
-        /*
-        if (_but != null) {
-            layout.removeView(_but);
-            _but = null;
-        }
-        */
-
-        /*
-        Button but = new Button(getApplicationContext());
-        _but = but;
-        _but.setText("Configure compatible devices");
-        _but.setTextColor(Color.BLACK);
-        _but.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        layout.addView(but);
-
-        if (user_conf == 0) {
-            but.setEnabled(false);
-        }
-        _but.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent but_intent = new Intent(getApplicationContext(), CompatibleDevices.class);
-                but_intent.putExtra("device_id", deviceid);
-                but_intent.putExtra("device_name", devicename);
-                but_intent.putExtra("device_type", device_type);
-
-                startActivity(but_intent);
-            }
-        });
-        */
+        handler_add_msg(1);
 
         HttpGetCompatibleDevicesAsyncTask comp = new HttpGetCompatibleDevicesAsyncTask(this);
         comp.execute(deviceid);
 
-        //if (!readytoupdate) {
-        //    set_listeners();
-        //}
-
 		readytoupdate = true;
-		
 	}
 
     @Override
@@ -524,27 +562,9 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 
         _only_synapse_devices = only_synapse_devices;
 
-        /*
-        if (_lv != null) {
-            layout.removeView(_lv);
-            _lv = null;
-        }
-        */
-
-/*
-        ListView lv = new ListView(this);
-        _lv = lv;
-        layout.addView(_lv);
-
-
-
-        CompatibleAdapter comp_adapter = new CompatibleAdapter(this, only_synapse_devices, result, deviceid);
-        _comp_adapter = comp_adapter;
-        _lv.setAdapter(comp_adapter);
-*/
-
-
         ui();
+
+        handler_add_msg(0);
     }
 
     private void ui() {
@@ -665,7 +685,7 @@ public class DeviceActivity extends Activity implements TaskCompletedInterface {
 
 
     private boolean isNetworkAvailable() {
-	    ConnectivityManager connectivityManager 
+	    ConnectivityManager connectivityManager
 	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
