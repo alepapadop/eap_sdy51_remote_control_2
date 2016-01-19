@@ -64,7 +64,7 @@ public class HttpGetDevicesAsyncTask extends AsyncTask<Void, Void, ArrayList<Dev
                     d.user_conf = details.getInt("user_configurable");
 
 					//if (d.devicename.contains("alex")) {
-                     //   result.add(d);
+                        result.add(d);
                     //}
             		//Log.i("Get Devices", d.deviceid+", "+d.devicename+", "+d.devicetype);
             	}
